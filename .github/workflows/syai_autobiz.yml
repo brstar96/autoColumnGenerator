@@ -1,0 +1,61 @@
+name: syai_autobiz
+
+on:
+  schedule:
+  - cron: '0 10 * * 5' # set weekly cron job schedule only running on friday at 10:00 kst
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        python-version: [3.7]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install python package
+      run: |
+        python -m pip install --upgrade pip
+        pip install selenium==3.141.0
+        pip install chromedriver_autoinstaller
+        pip install webdriver_manager
+        pip install pytz==2022.7.1
+
+    - name: Install ubuntu package
+      run: |        
+        sudo apt-get install fonts-unfonts-core
+        sudo apt-get install fonts-unfonts-extra
+
+    - name: Get Time
+      id: time
+      uses: nanzm/get-time-action@v1.0
+      with:
+        timeZone: 9
+        format: 'YY-MM-DD'
+
+    - name: Execute python file
+      env: 
+        ID_MGL: ${{ secrets.ID_MGL }}
+        PW_MGL: ${{ secrets.PW_MGL }}
+      run: python ./flexworktime_request_autosubmit.py
+
+    - name: Commit files
+      run: |
+        git config --global user.email "brstar96@naver.com"
+        git config --global user.name "MYEONGGYULEE"
+        git pull
+        git add .
+        git commit -m "ADD SCREENSHOTS"
+        git push origin master
+
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
