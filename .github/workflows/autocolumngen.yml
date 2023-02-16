@@ -2,7 +2,7 @@ name: autocolumngen
 
 on:
   push:
-      branches: [ master ]
+      branches: main
     
 env:
   ECR_REGISTRY: 666293202962.dkr.ecr.ap-northeast-2.amazonaws.com/auto-column-generator
